@@ -1,53 +1,45 @@
 #include "mymalloc.h"
 #include <stdio.h>
 
-#define MEMLENGTH 512 // Memory pool size
-
-typedef struct header {
-    size_t size;
-    int is_free;
-    struct header *next;
-} header_t;
-
+#define MEMLENGTH 512
 static double memory[MEMLENGTH];
-static header_t *head = NULL;
 
-header_t *get_free_block(size_t size) {
-    header_t *curr = head;
-    while(curr) {
-        if (curr->is_free && curr->size >= size)
-            return curr;
-        curr = curr->next;
-    }
-    return NULL;
-}
+typedef struct Metadata {
+    size_t size;
+    size_t payload;
+    int free;
+} Metadata;
 
 void *mymalloc(size_t size, char *file, int line) {
-    size_t total_size;
-    void *block;
-    header_t *header;
-   
-    if (!size) return NULL; //returns null since nothing was requested
-    
-    header = get_free_block(size);
+    //somehow apparently rounds up to nearest 8 using bitwise
+    size_t allocated_space = ((size + sizeof(Metadata) +7) & ~7);
 
-    if (header) {
-        header->is_free = 0;
-        return (void*)(header + 1);
+    //pointer to beginning of memory (all metadata is in linked list)
+    Metadata* current = (Metadata*)memory;
+
+    //while the address of current pointer is less then the bounds of memory (MEMLENGTH is how long memory array spans)
+    while(current < (Metadata*)(memory + MEMLENGTH)) {
+        if(current -> free == 0 && current -> size >= allocated_space) {
+            size_t extra_space = allocated_space - (current -> size);
+
+            if(extra_space >= sizeof(Metadata) + 1) {
+                Metadata* next_header = (Metadata*)((void*)current + allocated_space);
+                next_header -> size = extra_space;
+                next_header -> payload = extra_space - sizeof(Metadata);
+                next_header -> free = 0;
+
+                current -> size = allocated_space - extra_space;
+                current -> payload = (allocated_space - extra_space) - sizeof(Metadata);
+            } else {
+                current -> size = allocated_space;
+                current -> payload = allocated_space - sizeof(Metadata);
+            }
+
+            current -> free = 1;
+            return ((void*)current + sizeof(Metadata));
+        }
+
     }
 
-    total_size = sizeof(header_t) + size;
-    block = memory;
-
-     if (!block) {
-        printf("Error: failed to allocate memory in file %s at line %d\n", file, line);
-        return NULL;
-     }//prints Error and returns null 
-
-
-    
-
-
-
-
+    return NULL;
 }
