@@ -14,7 +14,7 @@ void *mymalloc(size_t size, char *file, int line) {
     //somehow apparently rounds up to nearest 8 using bitwise
     size_t allocated_space = ((size + sizeof(Metadata) +7) & ~7);
 
-    //pointer to beginning of memory (all metadata is in linked list)
+    //pointer to beginning of memory
     Metadata* current = (Metadata*)memory;
 
     //while the address of current pointer is less then the bounds of memory (MEMLENGTH is how long memory array spans)
