@@ -47,23 +47,28 @@ void *mymalloc(size_t size, char *file, int line) {
             //extra space from, payload will always be >= space needed
             size_t extra_space = current->payload - allocated_space;
 
-
+        //if there is enough extra space for header and atleast 1 byte, split the chunk (two headers)
             if(extra_space >= sizeof(Header) + 1) {
+                //address + size of current header + size of payload will take u to the start of next header (initialize header as well)
                 Header* next_header = (Header*)((char*)current + (sizeof(Header)+size));
+                //set all values of the next header
                 next_header->size = extra_space;
                 next_header->payload = extra_space - sizeof(Header);
                 next_header->free = 0;
-
-                current->size = extra_space;
-                current->payload = extra_space - sizeof(Header);
+                //set all values of current header
+                current->size = size + sizeof(Header);
+                current->payload = size;
             } else {
+                //if there is not enough space for header and atleast 1 byte, do not split the chunk
                 current->size = allocated_space;
                 current->payload = allocated_space - sizeof(Header);
             }
-
+            //set the current header to being used
             current->free = 1;
+            //return address of payload (address of header + bytes header takes up)
             return ((char*)current + sizeof(Header));
         }
+        //traverse to next header
         current = (Header*)((char*)current + current->size);
     }
 
