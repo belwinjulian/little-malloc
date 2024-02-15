@@ -75,4 +75,45 @@ void *mymalloc(size_t size, char *file, int line) {
     return NULL;
 }
 
+void myfree(void *ptr, char *file, int line)
+{
+    if(!ptr)//no ptr error case
+    {
+        printf("Error: no pointer given");
+        return;
 
+    }
+
+    // Get the header associated with this pointer
+    Header* header = (Header*)((char*)ptr - sizeof(Header));
+
+    if(header->free == 0)//double free error case
+    {
+        fprintf(stderr, "myfree: double free attempt (%s:%d)\n", file, line);
+        return;
+    }
+
+    // Mark the block as free
+    header->free = 0;
+
+    // Merge with next block if it is free
+    Header* next = (Header*)((char*)header + header->size);
+    if (next < (Header*)(memory + MEMLENGTH) && next->free == 0) {
+        header->size += next->size;
+        header->payload += next->payload;
+    }
+
+    // Merge with previous block if it is free
+    Header* prev = NULL;
+    Header* current = (Header*)memory;
+    while(current < (Header*)(memory + MEMLENGTH) && current < header) {
+        if (current->free == 0) {
+            prev = current;
+        }
+        current = (Header*)((char*)current + current->size);
+    }
+    if (prev && prev->free == 0) {
+        prev->size += header->size;
+        prev->payload += header->payload;
+    }
+}
