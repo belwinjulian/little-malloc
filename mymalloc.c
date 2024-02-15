@@ -84,12 +84,26 @@ void myfree(void *ptr, char *file, int line)
 
     }
 
+
+    // Error check: ensure ptr is within the range of our managed memory
+    if (ptr < (void*)memory || ptr >= (void*)(memory + MEMLENGTH)) {
+        fprintf(stderr, "Error: Attempted to free an address not obtained from malloc (%s:%d).\n", file, line);
+        return;
+    }
+
+
     // Get the header associated with this pointer
     Header* header = (Header*)((char*)ptr - sizeof(Header));
 
-    if(header->free == 0)//double free error case
+    if(header->free == 0)//make sure block is not already free
     {
         fprintf(stderr, "myfree: double free attempt (%s:%d)\n", file, line);
+        return;
+    }
+
+     // Error check: ensure ptr is at the start of a chunk
+    if (ptr != (void*)header + sizeof(Header)) {
+        fprintf(stderr, "Error: Attempted to free an address not at the start of a chunk (%s:%d).\n", file, line);
         return;
     }
 
