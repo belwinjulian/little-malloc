@@ -9,6 +9,7 @@ typedef struct Header {
     size_t size;
     size_t payload;
     int free;
+    char* ptr;
 } Header;
 //since both variable types are integers, both are initialized to 0
 
@@ -65,6 +66,7 @@ void *mymalloc(size_t size, char *file, int line) {
             }
             //set the current header to being used
             current->free = 1;
+            current->ptr = ((char*)current + sizeof(Header)); //yo added this so it helps track stuff in free
             //return address of payload (address of header + bytes header takes up)
             return ((char*)current + sizeof(Header));
         }
@@ -95,17 +97,21 @@ void myfree(void *ptr, char *file, int line)
     // Get the header associated with this pointer
     Header* header = (Header*)((char*)ptr - sizeof(Header));
 
+
+// Error check: ensure ptr is at the start of a chunk
+    if (ptr != header->ptr) {
+        fprintf(stderr, "Error: Attempted to free an address not at the start of a chunk (%s:%d).\n", file, line);
+        return;
+    }
+
+
     if(header->free == 0)//make sure block is not already free
     {
         fprintf(stderr, "myfree: double free attempt (%s:%d)\n", file, line);
         return;
     }
 
-     // Error check: ensure ptr is at the start of a chunk
-    if (ptr != (void*)header + sizeof(Header)) {
-        fprintf(stderr, "Error: Attempted to free an address not at the start of a chunk (%s:%d).\n", file, line);
-        return;
-    }
+     
 
     // Mark the block as free
     header->free = 0;
