@@ -17,6 +17,7 @@ void *mymalloc(size_t size, char *file, int line) {
 
     //if 0 bytes are requested
     if(size == 0) {
+         fprintf(stderr, "Memory Allocation Failed: Can't allocate 0 bytes (%s:%d).\n", file, line);
         return NULL;
     }
 
@@ -25,6 +26,7 @@ void *mymalloc(size_t size, char *file, int line) {
 
     //if number of bytes requested is greater the bytes available
     if(allocated_space >= MEMLENGTH*sizeof(double)) {
+         fprintf(stderr, "Memory Allocation Failed: Requested more than available space (%s:%d).\n", file, line);
         return NULL;
     }
 
@@ -51,19 +53,16 @@ void *mymalloc(size_t size, char *file, int line) {
         //if there is enough extra space for header and atleast 1 byte, split the chunk (two headers)
             if(extra_space >= sizeof(Header) + 1) {
                 //address + size of current header + size of payload will take u to the start of next header (initialize header as well)
-                Header* next_header = (Header*)((char*)current + (sizeof(Header)+size));
+                Header* next_header = (Header*)((char*)current + allocated_space);
                 //set all values of the next header
                 next_header->size = extra_space;
                 next_header->payload = extra_space - sizeof(Header);
                 next_header->free = 0;
-                //set all values of current header
-                current->size = size + sizeof(Header);
-                current->payload = size;
-            } else {
-                //if there is not enough space for header and atleast 1 byte, do not split the chunk
+            } 
+
                 current->size = allocated_space;
                 current->payload = allocated_space - sizeof(Header);
-            }
+            
             //set the current header to being used
             current->free = 1;
             current->ptr = ((char*)current + sizeof(Header)); //yo added this so it helps track stuff in free
@@ -74,6 +73,7 @@ void *mymalloc(size_t size, char *file, int line) {
         current = (Header*)((char*)current + current->size);
     }
 
+     fprintf(stderr, "Memory Allocation Failed: Not enough memory available (%s:%d).\n", file, line);
     return NULL;
 }
 
