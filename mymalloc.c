@@ -9,7 +9,6 @@ typedef struct Header {
     short size;
     short payload;
     short free;
-    char* ptr;
 } Header;
 //since both variable types are integers, both are initialized to 0
 
@@ -67,7 +66,6 @@ void *mymalloc(size_t size, char *file, int line) {
             
             //set the current header to being used
             current->free = 1;
-            current->ptr = ((char*)current + sizeof(Header)); //added this so it helps track stuff in free
             //return address of payload (address of header + bytes header takes up)
             return ((char*)current + sizeof(Header));
         }
@@ -102,10 +100,23 @@ void myfree(void *ptr, char *file, int line)
 
 
 // Error check: ensure ptr is at the start of a chunk
-    if (ptr != header->ptr) {
+    Header* temp = (Header*)memory;
+    int sum = 0;
+
+    while(temp < (Header*)(memory + MEMLENGTH)) {
+        temp = (Header*)((char*)temp + temp->size);
+        int sum = sum + temp->size;
+
+        if(ptr == (void*)((char*)temp+sizeof(Header))) {
+            break;
+        }
+        if(sum >= sizeof(double)*MEMLENGTH) {
         fprintf(stderr, "Error: Attempted to free an address not at the start of a chunk (%s:%d).\n", file, line);
         return;
+        }
     }
+
+    
 
 
     if(header->free == 0)//make sure block is not already free
@@ -122,8 +133,8 @@ void myfree(void *ptr, char *file, int line)
     // Merge with next block if it is free
     Header* next = (Header*)((char*)header + header->size);
     if (next < (Header*)(memory + MEMLENGTH) && next->free == 0) {
-        header->size += next->size+32;
-        header->payload += next->payload+64;
+        header->size += next->size+6;
+        header->payload += next->size+6;
     }
 
     // Merge with previous block if it is free
@@ -136,7 +147,7 @@ void myfree(void *ptr, char *file, int line)
         current = (Header*)((char*)current + current->size);
     }
     if (prev && prev->free == 0) {
-        prev->size += header->size;
-        prev->payload += header->payload;
-    }
-}
+        prev->size += header->size+6;
+        prev->payload += header->size+6;
+    } 
+} 
