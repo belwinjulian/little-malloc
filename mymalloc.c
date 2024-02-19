@@ -6,9 +6,9 @@
 static double memory[MEMLENGTH];
 
 typedef struct Header {
-    size_t size;
-    size_t payload;
-    int free;
+    short size;
+    short payload;
+    short free;
     char* ptr;
 } Header;
 //since both variable types are integers, both are initialized to 0
@@ -33,7 +33,6 @@ void *mymalloc(size_t size, char *file, int line) {
     //pointer to beginning of memory 
     Header* current = (Header*)memory;
 
-
     //initializing the first header
     if(current->size == 0) {
         current->size = MEMLENGTH * sizeof(double);
@@ -41,17 +40,20 @@ void *mymalloc(size_t size, char *file, int line) {
         current->free = 0;
     }
 
+    
 
     //while the address of current pointer is less then the bounds of memory (MEMLENGTH is how long memory array spans)
     // 0 + 8(512)
     while(current < (Header*)(memory + MEMLENGTH)) {
         //if header says space is free and the amount of bytes-header space is enough to allocate
+        
         if(current->free == 0 && current->payload >= allocated_space) {
             //extra space from, payload will always be >= space needed
             size_t extra_space = current->payload - allocated_space;
-
+           
         //if there is enough extra space for header and atleast 1 byte, split the chunk (two headers)
-            if(extra_space >= sizeof(Header) + 1) {
+       
+            if(extra_space >= sizeof(Header) + 1) { 
                 //address + size of current header + size of payload will take u to the start of next header (initialize header as well)
                 Header* next_header = (Header*)((char*)current + allocated_space);
                 //set all values of the next header
@@ -65,7 +67,7 @@ void *mymalloc(size_t size, char *file, int line) {
             
             //set the current header to being used
             current->free = 1;
-            current->ptr = ((char*)current + sizeof(Header)); //yo added this so it helps track stuff in free
+            current->ptr = ((char*)current + sizeof(Header)); //added this so it helps track stuff in free
             //return address of payload (address of header + bytes header takes up)
             return ((char*)current + sizeof(Header));
         }
@@ -76,6 +78,7 @@ void *mymalloc(size_t size, char *file, int line) {
      fprintf(stderr, "Memory Allocation Failed: Not enough memory available (%s:%d).\n", file, line);
     return NULL;
 }
+
 
 void myfree(void *ptr, char *file, int line)
 {
@@ -119,8 +122,8 @@ void myfree(void *ptr, char *file, int line)
     // Merge with next block if it is free
     Header* next = (Header*)((char*)header + header->size);
     if (next < (Header*)(memory + MEMLENGTH) && next->free == 0) {
-        header->size += next->size;
-        header->payload += next->payload;
+        header->size += next->size+32;
+        header->payload += next->payload+64;
     }
 
     // Merge with previous block if it is free
