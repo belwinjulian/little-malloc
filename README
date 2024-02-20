@@ -5,11 +5,17 @@ Soma Parvathini(svp98)
 
 #Design
 
-////malloc here
+## Function: mymalloc()
 
+The `mymalloc` function is designed to allocate memory dynamically. It accepts a single parameter: the number of bytes requested for allocation. The process involves the following steps:
 
+1. **Header Addition**: To the requested number of bytes, we add the size of the Header. The Header contains metadata about the memory allocation.
+2. **Rounding Up**: The total size (requested bytes + Header size) is rounded up to the nearest multiple of 8. This rounding is necessary because memory is allocated in 8-byte chunks.
+3. **Space Allocation**: Once the total size is determined, the allocated space is divided into two segments:
+   - The segment corresponding to the requested allocation.
+   - A free segment, if any space remains unallocated after the requested allocation.
 
-
+This approach ensures efficient memory management by minimizing wasted space and aligning allocations to 8-byte boundaries for optimal access and performance.
 
 
 ## Function: myfree()
