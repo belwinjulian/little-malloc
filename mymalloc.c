@@ -1,6 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "mymalloc.h"
-
 
 #define MEMLENGTH 512
 static double memory[MEMLENGTH];
@@ -11,7 +11,6 @@ typedef struct Header {
     short free;
 } Header;
 //since both variable types are integers, both are initialized to 0
-
 
 
 
@@ -151,7 +150,7 @@ void myfree(void *ptr, char *file, int line)
         }
         current = (Header*)((char*)current + current->size);
     }
-    if (prev && prev->free == 0) {
+    if (prev && prev->free == 0 && (prev+sizeof(Header)==header)) {
         prev->size += header->size;
         prev->payload += header->size;
     }
