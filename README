@@ -4,8 +4,26 @@ Soma Parvathini(svp98)
 
 
 #Design
-/////////////////////////////
-Still have to do this
+
+////malloc here
+
+
+
+
+
+
+## Function: myfree()
+
+The `myfree()` function is responsible for freeing memory that was previously allocated using `mymalloc()`. Here's how it works:
+
+1. **Valid Pointer Check**: The function first checks if the provided pointer is valid and points to the start of a chunk. If not, an error is thrown.
+
+2. **Next Block Check**: The function then checks if the block immediately after the given block is free. If it is, the size of the next block is added to the size of the current block, effectively merging the two blocks.
+
+3. **Previous Block Check**: The function uses a while loop to find the block immediately before the given block. If the previous block is free, the size of the current block is added to the size of the previous block, effectively merging the two blocks.
+
+This function ensures that any freed memory is correctly returned to the pool of available memory and can be reused in future `mymalloc()` calls.
+
 
 
 
