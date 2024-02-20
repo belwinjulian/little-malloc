@@ -6,7 +6,7 @@
 static double memory[MEMLENGTH];
 
 typedef struct Header {
-    short size;
+    int size;
     short payload;
     short free;
 } Header;
@@ -40,7 +40,7 @@ void *mymalloc(size_t size, char *file, int line) {
     size_t allocated_space = ((size + sizeof(Header) +7) & ~7);
 
     //if number of bytes requested is greater the bytes available
-    if(allocated_space >= MEMLENGTH*sizeof(double)) {
+    if(allocated_space > MEMLENGTH*sizeof(double)) {
          fprintf(stderr, "Memory Allocation Failed: Requested more than available space (%s:%d).\n", file, line);
         return NULL;
     }
@@ -55,16 +55,17 @@ void *mymalloc(size_t size, char *file, int line) {
         current->free = 0;
     }
 
-    
+
+
 
     //while the address of current pointer is less then the bounds of memory (MEMLENGTH is how long memory array spans)
     // 0 + 8(512)
     while(current < (Header*)(memory + MEMLENGTH)) {
         //if header says space is free and the amount of bytes-header space is enough to allocate
         
-        if(current->free == 0 && current->payload >= allocated_space) {
+        if(current->free == 0 && current->size >= allocated_space) {
             //extra space from, payload will always be >= space needed
-            size_t extra_space = current->payload - allocated_space;
+            size_t extra_space = current->size - allocated_space;
            
         //if there is enough extra space for header and atleast 1 byte, split the chunk (two headers)
        
@@ -75,6 +76,7 @@ void *mymalloc(size_t size, char *file, int line) {
                 next_header->size = extra_space;
                 next_header->payload = extra_space - sizeof(Header);
                 next_header->free = 0;
+                printf("size: %d\npayload: %d\n", next_header->size, next_header->payload);
             } 
 
                 current->size = allocated_space;
@@ -83,7 +85,9 @@ void *mymalloc(size_t size, char *file, int line) {
             //set the current header to being used
             current->free = 1;
             //return address of payload (address of header + bytes header takes up)
+            printf("current size: %d\ncurrent payload: %d\n", current->size, current->payload);
             return ((char*)current + sizeof(Header));
+             
         }
         //traverse to next header
         current = (Header*)((char*)current + current->size);
