@@ -100,25 +100,12 @@ void myfree(void *ptr, char *file, int line)
     // Get the header associated with this pointer
     Header* header = (Header*)((char*)ptr - sizeof(Header));
 
-
-// Error check: ensure ptr is at the start of a chunk
-    Header* temp = (Header*)memory;
-    int sum = 0;
-
-   /* while(temp < (Header*)(memory + MEMLENGTH)) {
-        temp = (Header*)((char*)temp + temp->size);
-        int sum = sum + temp->size;
-
-        if(ptr == (void*)((char*)temp+sizeof(Header))) {
-            break;
-        }
-        if(sum >= sizeof(double)*MEMLENGTH) {
+    // Error check: ensure ptr is at the start of a chunk
+    if(!(isStartOfChunk(ptr)))
+    {
         fprintf(stderr, "Error: Attempted to free an address not at the start of a chunk (%s:%d).\n", file, line);
         return;
-        }
-    } */
-
-    
+    }
 
 
     if(header->free == 0)//make sure block is not already free
@@ -151,5 +138,5 @@ void myfree(void *ptr, char *file, int line)
     if (prev && prev->free == 0) {
         prev->size += header->size+8;
         prev->payload += header->size+8;
-    } 
-} 
+    }
+}
