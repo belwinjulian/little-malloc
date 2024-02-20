@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "mymalloc.h"
 
 #define MEMLENGTH 512
@@ -150,8 +151,11 @@ void myfree(void *ptr, char *file, int line)
         }
         current = (Header*)((char*)current + current->size);
     }
-    if (prev && prev->free == 0 && (prev+sizeof(Header)==header)) {
+    if (prev && prev->free == 0 && ((Header*)((char*)prev + prev->size)==header)) {
         prev->size += header->size;
         prev->payload += header->size;
     }
 }
+
+
+
