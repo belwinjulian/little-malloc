@@ -76,7 +76,6 @@ void *mymalloc(size_t size, char *file, int line) {
                 next_header->size = extra_space;
                 next_header->payload = extra_space - sizeof(Header);
                 next_header->free = 0;
-                printf("size: %d\npayload: %d\n", next_header->size, next_header->payload);
             } 
 
                 current->size = allocated_space;
@@ -85,7 +84,6 @@ void *mymalloc(size_t size, char *file, int line) {
             //set the current header to being used
             current->free = 1;
             //return address of payload (address of header + bytes header takes up)
-            printf("current size: %d\ncurrent payload: %d\n", current->size, current->payload);
             return ((char*)current + sizeof(Header));
              
         }
