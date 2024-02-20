@@ -27,17 +27,6 @@ int isStartOfChunk(void* ptr) {
     return 0;  // ptr is not the start of a chunk
 }
 
-int memcleared() {
-    Header* current = (Header*)memory;
-    while(current < (Header*)(memory + MEMLENGTH)) {
-        if (current->free == 1) {
-            return 0;  // Memory is not clear
-        }
-        else if(current->size == 0) break;
-        current = (Header*)((char*)current + current->size);
-    }
-    return 1;  // Memory is clear
-}
 
 void *mymalloc(size_t size, char *file, int line) {
 
