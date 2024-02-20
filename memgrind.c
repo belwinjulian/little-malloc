@@ -79,6 +79,7 @@ int test3() {
 	return abs(endTime-startTime);
 }
 
+//mallocs half and half each iteration
 int test4()
 {
 	int startTime = getTime();
@@ -95,8 +96,11 @@ int test4()
 	return abs(endTime-startTime);
 }
 
+
+//frees even then odd
 int test5()
 {
+	
 	int startTime = getTime();
     char* ptrArr[240];
     for (int i = 0; i < 240; i++) {
