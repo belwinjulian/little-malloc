@@ -2,3 +2,44 @@ Belwin Julian(bj273)
 Soma Parvathini(svp98)
 
 
+# Test Plan
+
+                            ## Preliminary Testing
+
+Before proceeding with the `memgrind` tests, we performed preliminary testing using a main function call on `mymalloc.c`. We tested various scenarios such as:
+
+- Allocating more than 4088 bytes.
+- Allocating 1000 bytes 4 times.
+- Freeing the 1st and 3rd group of 1000 bytes.
+
+After confirming the correctness of our `mymalloc` and `myfree` functions, we proceeded to performance testing.
+
+                            ## Performance Testing
+
+We created `memgrind.c` for performance testing. This file includes a function called `isMemCleared`, which requests 4088 bytes (the maximum allowed). If there is no error, it indicates that our memory was successfully cleared.
+
+The first three test cases in `memgrind` were provided in the assignment PDF.
+
+## Additional Test Cases
+
+We added two additional test cases:
+
+      ### Test4
+
+This test case requests 2040 bytes twice in each iteration, using up all allowed memory (4096 bytes).
+
+      ### Test5
+
+This test case allocates 1 byte in each iteration. If the iteration number is even, it frees the allocated byte immediately. After the loop, it frees the bytes allocated during odd iterations.
+
+
+
+Average Run Time for Test cases:
+The average time taken to run test 1 was 2.120000 ms
+The average time taken to run test 2 was 28.360000 ms
+The average time taken to run test 3 was 6.800000 ms
+The average time taken to run test 4 was 2.140000 ms
+The average time taken to run test 5 was 125.640000 ms
+
+
+
