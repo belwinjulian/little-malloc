@@ -117,11 +117,11 @@ void myfree(void *ptr, char *file, int line)
     Header* header = (Header*)((char*)ptr - sizeof(Header));
 
     // Error check: ensure ptr is at the start of a chunk
-    if(!(isStartOfChunk(ptr)))
+     if(!(isStartOfChunk(ptr)))
     {
         fprintf(stderr, "Error: Attempted to free an address not at the start of a chunk (%s:%d).\n", file, line);
         return;
-    }
+    } 
 
 
     if(header->free == 0)//make sure block is not already free
@@ -138,8 +138,8 @@ void myfree(void *ptr, char *file, int line)
     // Merge with next block if it is free
     Header* next = (Header*)((char*)header + header->size);
     if (next < (Header*)(memory + MEMLENGTH) && next->free == 0) {
-        header->size += next->size+8;
-        header->payload += next->size+8;
+        header->size += next->size;
+        header->payload += next->size;
     }
 
     // Merge with previous block if it is free
@@ -152,7 +152,7 @@ void myfree(void *ptr, char *file, int line)
         current = (Header*)((char*)current + current->size);
     }
     if (prev && prev->free == 0) {
-        prev->size += header->size+8;
-        prev->payload += header->size+8;
+        prev->size += header->size;
+        prev->payload += header->size;
     }
 }
