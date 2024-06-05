@@ -1,0 +1,76 @@
+Belwin Julian(bj273)
+Soma Parvathini(svp98)
+
+
+
+#Design
+
+## Function: mymalloc()
+
+The `mymalloc` function is designed to allocate memory dynamically. It accepts a single parameter: the number of bytes requested for allocation. The process involves the following steps:
+
+1. **Header Addition**: To the requested number of bytes, we add the size of the Header. The Header contains metadata about the memory allocation.
+2. **Rounding Up**: The total size (requested bytes + Header size) is rounded up to the nearest multiple of 8. This rounding is necessary because memory is allocated in 8-byte chunks.
+3. **Space Allocation**: Once the total size is determined, the allocated space is divided into two segments:
+   - The segment corresponding to the requested allocation.
+   - A free segment, if any space remains unallocated after the requested allocation.
+
+This approach ensures efficient memory management by minimizing wasted space and aligning allocations to 8-byte boundaries for optimal access and performance.
+
+
+## Function: myfree()
+
+The `myfree()` function is responsible for freeing memory that was previously allocated using `mymalloc()`. Here's how it works:
+
+1. **Valid Pointer Check**: The function first checks if the provided pointer is valid and points to the start of a chunk. If not, an error is thrown.
+
+2. **Next Block Check**: The function then checks if the block immediately after the given block is free. If it is, the size of the next block is added to the size of the current block, effectively merging the two blocks.
+
+3. **Previous Block Check**: The function uses a while loop to find the block immediately before the given block. If the previous block is free, the size of the current block is added to the size of the previous block, effectively merging the two blocks.
+
+This function ensures that any freed memory is correctly returned to the pool of available memory and can be reused in future `mymalloc()` calls.
+
+
+
+
+
+# Test Plan
+
+                            ## Preliminary Testing
+
+Before proceeding with the `memgrind` tests, we performed preliminary testing using a main function call on `mymalloc.c`. We tested various scenarios such as:
+
+- Allocating more than 4088 bytes.
+- Allocating 1000 bytes 4 times.
+- Freeing the 1st and 3rd group of 1000 bytes.
+
+After confirming the correctness of our `mymalloc` and `myfree` functions, we proceeded to performance testing.
+
+                            ## Performance Testing
+
+We created `memgrind.c` for performance testing. This file includes a function called `isMemCleared`, which requests 4088 bytes (the maximum allowed). If there is no error, it indicates that our memory was successfully cleared.
+
+The first three test cases in `memgrind` were provided in the assignment PDF.
+
+## Additional Test Cases
+
+We added two additional test cases:
+
+      ### Test4
+
+This test case requests 2040 bytes twice in each iteration, using up all allowed memory (4096 bytes).
+
+      ### Test5
+
+This test case allocates 1 byte in each iteration. If the iteration number is even, it frees the allocated byte immediately. After the loop, it frees the bytes allocated during odd iterations.
+
+
+
+Average Run Time for Test cases:
+The average time taken to run test 1 was 2.120000 ms
+The average time taken to run test 2 was 28.360000 ms
+The average time taken to run test 3 was 6.800000 ms
+The average time taken to run test 4 was 2.140000 ms
+The average time taken to run test 5 was 125.640000 ms
+
+
